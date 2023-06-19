@@ -2,22 +2,27 @@
 body {
     background-color: #A1C2F1;
     width: 150px;
+    height: 800px;
     margin: 0 auto;
     font-family: sans-serif;
 }
 
 p {
     color: #ffffff;
-    font-size: 15px;
+    font-size: 20px;
     margin-top: 50px;
     font-style: italic;
     text-align: center;
+    position: relative;
+    font-weight: bold;
+    left: 25px;
 }
 
 h1 {
     color: #ffffff;
     position: relative;
     left: 40px;
+    font-size: 50px;
 }
 
 button {
@@ -44,3 +49,52 @@ button:hover {
 header {
     margin-bottom: 150px;
 }
+
+/* Ipad */
+@media screen and (min-width: 750px) {
+
+    body {
+        width: 450px;
+        margin: 0 auto;
+    }
+
+    button {
+        display: inline-block;
+    }
+
+    button:first-child {
+        margin-right: 10px;
+    }
+
+    h1 {
+        left: 80px;
+    }
+
+    p {
+        left: 0;
+    }
+}
+
+@media screen and (min-width: 950px) {
+
+    body {
+        width: 500px;
+        margin: 0 auto;
+    }
+    button:first-child {
+        margin-right: 50px;
+    }
+
+    button {
+        height: 50px;
+    }
+
+    p {
+        font-size: 15px;
+    }
+
+    h1 {
+        left: 100px;
+    }
+}
+
