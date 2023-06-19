@@ -1,0 +1,46 @@
+/* Mobile first */
+body {
+    background-color: #A1C2F1;
+    width: 150px;
+    margin: 0 auto;
+    font-family: sans-serif;
+}
+
+p {
+    color: #ffffff;
+    font-size: 15px;
+    margin-top: 50px;
+    font-style: italic;
+    text-align: center;
+}
+
+h1 {
+    color: #ffffff;
+    position: relative;
+    left: 40px;
+}
+
+button {
+    display: block;
+    font-weight: bold;
+    background-color: #E7CEA6;
+    padding: 10px;
+    box-sizing: border-box;
+    width: 200px;
+    height: 70px;
+    border-radius: 10px;
+    border-color: #E7CEA6;
+    box-shadow: 2px 2px #888888;
+}
+
+button:first-child {
+    margin-bottom: 10px;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+header {
+    margin-bottom: 150px;
+}
