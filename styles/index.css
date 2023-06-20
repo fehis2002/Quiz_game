@@ -8,7 +8,6 @@ body {
 }
 
 p {
-    color: #ffffff;
     font-size: 20px;
     margin-top: 50px;
     font-style: italic;
@@ -18,8 +17,10 @@ p {
     left: 25px;
 }
 
-h1 {
+h1, p, #content > h2, #content label {
     color: #ffffff;
+}
+h1 {
     position: relative;
     left: 40px;
     font-size: 50px;
@@ -48,6 +49,49 @@ button:hover {
 
 header {
     margin-bottom: 150px;
+}
+
+.error {
+    color: red;
+    font-family: sans-serif;
+    font-weight: bold;
+}
+
+.smallButton {
+    text-align: center;
+    display: inline-block;
+    font-weight: bold;
+    background-color: #E7CEA6;
+    padding: 10px;
+    box-sizing: border-box;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border-color: #E7CEA6;
+    box-shadow: 2px 2px #888888;
+}
+
+.answerGeneralQuestion {
+    width: 50px;
+}
+
+.smallButton:nth-child(2n + 1) {
+    margin-right: 10px;
+}
+
+.smallButton:nth-child(2n) {
+    margin-left: 10px;
+}
+
+#content {
+    width: 200px;
+    height: 600px;
+    margin: 0 auto;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+    font-family: sans-serif;
 }
 
 /* Ipad */

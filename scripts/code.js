@@ -5,12 +5,12 @@ const setup = () => {
 
     //redirects to page where we can create a quiz
     createButton.addEventListener('click', () => {
-        location.href = '../createQuiz.html';
+        window.location.href = '../../Quiz_game/createQuiz.html';
     })
 
-    //redirects to page where we can load quizes
+    //redirects to page where we can load quiz's
     loadButton.addEventListener('click', () => {
-        location.href = '../loadQuiz.html';
+        window.location.href = '../../Quiz_game/loadQuiz.html';
     })
 }
 
