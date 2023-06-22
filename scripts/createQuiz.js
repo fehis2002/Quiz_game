@@ -1,10 +1,19 @@
 const global = {
+    MAXIMUM_AMOUNT_OF_QUESTION: 1,
     amountOfQuestions: 0,
-    timoutID: 0
+    timoutID: 0,
+    QUIZES: [],
+    CURRENT_QUESTIONS_LIST: []
+
 }
 
 const setup = () => {
     displayTypeOfQuestions();
+
+    //checking whether a local storage exists
+    if(JSON.parse(localStorage.getItem('quizes')) === null) {
+        localStorage.setItem('quizes', JSON.stringify([]))
+    }
 }
 
 const displayTypeOfQuestions = () => {
@@ -39,8 +48,7 @@ const displayTypeOfQuestions = () => {
 
 }
 
-
-function generateQuestionSetting() {
+const generateQuestionSetting = () => {
     //clearing page
     let div = document.getElementById('content');
     div.innerHTML = '';
@@ -63,16 +71,22 @@ function generateQuestionSetting() {
     return div;
 }
 
-function displaySubmitButtonSetting(type, div) {
+const displaySubmitButtonSetting = (type, div) => {
     //submit question
     let button = document.createElement('button');
     let buttonText = document.createTextNode('Next Question');
     button.addEventListener('click', () => {
         clearTimeout(global.timoutID);
         if (validate(type)) {
+            global.CURRENT_QUESTIONS_LIST.push(createQuestion(type));
             global.amountOfQuestions++;
             div.innerHTML = '';
             displayTypeOfQuestions();
+        }
+
+        if(global.CURRENT_QUESTIONS_LIST.length !== 0 && global.amountOfQuestions === global.MAXIMUM_AMOUNT_OF_QUESTION) {
+            div.innerHTML = '';
+            generateTitleOption(global.CURRENT_QUESTIONS_LIST);
         }
     });
 
@@ -101,7 +115,6 @@ const displayOpenQuestionSetting = () => {
     displaySubmitButtonSetting('open question', div);
 
 }
-
 
 const displayGeneralQuestion = (type, amountOfAnswers) => {
 
@@ -151,6 +164,31 @@ const displayGeneralQuestion = (type, amountOfAnswers) => {
 
 }
 
+const checkIfAnswersAreEmpty = () => {
+    let empty = false;
+    let answers = document.querySelectorAll('div#content > div > input');
+    let i = 0;
+    // checking if answers are empty
+    while (!empty && i < answers.length) {
+        if (answers[i].value === '') {
+            empty = true;
+        }
+        i++;
+    }
+    return empty;
+}
+
+const getAmountOfCorrectAnswers = () => {
+    let answerContainers = document.querySelectorAll('div#content > div');
+    let count = 0;
+    for (let i = 0; i < answerContainers.length; i++) {
+        if (answerContainers[i].classList.contains('correct')) {
+            count++;
+        }
+    }
+    return count;
+}
+
 const validate = type => {
 
     let invalid = false;
@@ -179,59 +217,27 @@ const validate = type => {
             invalid = true;
         }
     } else if (!invalid && type === 'question with one answer') {
-        let answers = document.querySelectorAll('div#content > div > input');
-        let i = 0;
-        // checking if answers are empty
-        while (!invalid && i < answers.length) {
-            if (answers[i].value === '') {
-                invalid = true;
-            }
-            i++;
-        }
+        invalid = checkIfAnswersAreEmpty();
         if (invalid) {
             errorText = document.createTextNode('There is at least one answer that is empty.');
         }
 
         if(!invalid) {
             // checking if one answer is selected as correct
-            let answerContainers = document.querySelectorAll('div#content > div');
-            i = 0;
-            let count = 0;
-            while (count <= 1 && i < answerContainers.length) {
-                if (answerContainers[i].classList.contains('correct')) {
-                    count++;
-                }
-                i++
-            }
-
-            if (count !== 1) {
+            if (getAmountOfCorrectAnswers() !== 1) {
                 errorText = document.createTextNode('You have to select one answer that can be correct');
+                invalid = true;
             }
         }
     } else if (!invalid && type === 'question with multiple answers') {
-        let answers = document.querySelectorAll('div#content > div > input');
-        let i = 0;
-        // checking if answers are empty
-        while (!invalid && i < answers.length) {
-            if (answers[i].value === '') {
-                invalid = true;
-            }
-            i++;
-        }
+        invalid = checkIfAnswersAreEmpty()
         if (invalid) {
             errorText = document.createTextNode('There is at least one answer that is empty.');
         }
 
         if(!invalid) {
             // checking if at least two answers are selected as correct
-            let answerContainers = document.querySelectorAll('div#content > div');
-            let count = 0;
-            for(let i = 0; i < answerContainers.length; i++) {
-                if (answerContainers[i].classList.contains('correct')) {
-                    count++;
-                }
-            }
-            if (count < 2) {
+            if (getAmountOfCorrectAnswers() < 2) {
                 errorText = document.createTextNode('You have to select at least two answers that can be correct');
                 invalid = true;
             }
@@ -255,5 +261,66 @@ const validate = type => {
         }
     }, 2000);
     return !invalid;
+}
+
+const generateTitleOption = questionsObject => {
+
+    let div = document.getElementById('content');
+
+    //setting up nodes
+    let h2 = document.createElement('h2');
+    let h2Text = document.createTextNode('Enter the title of your quiz');
+    let textField = document.createElement('input');
+    let button = document.createElement('button');
+    let buttonText = document.createTextNode('Save quiz');
+    let br = document.createElement('br');
+
+    textField.setAttribute('type', 'text');
+
+    //adding eventhandlers
+    button.addEventListener('click', () => {
+        //storing the created quiz
+        let quizObject = { questions: questionsObject }
+        quizObject.title = textField.value;
+        global.QUIZES.push(quizObject);
+        if(JSON.parse(localStorage.getItem('quizes')).length > 0) {
+            let storage = JSON.parse(localStorage.getItem('quizes')).push(quizObject);
+            localStorage.setItem('quizes', JSON.stringify(storage));
+        } else {
+            localStorage.setItem('quizes', JSON.stringify([quizObject]));
+        }
+        location.href = '../../Quiz_game/loadQuiz.html';
+    });
+
+    //appending nodes
+    h2.appendChild(h2Text);
+    button.appendChild(buttonText);
+
+    div.appendChild(h2);
+    div.appendChild(br);
+    div.appendChild(textField);
+    div.appendChild(button);
+
+    return textField.value;
+}
+
+const createQuestion = (type) => {
+    let questionObject = {};
+    questionObject.question = document.getElementsByTagName('textarea')[0].value;
+    if(type === 'open question') {
+        questionObject.answer = document.getElementsByTagName('textarea')[1].value;
+    } else {
+        let answers = document.getElementsByClassName('answer');
+        let answersArray = [];
+        for(let answer of answers) {
+            if(answer.classList.contains('correct')) {
+                answersArray.push({answer: answer.children[1].value, correct: true})
+            } else {
+                answersArray.push({answer: answer.children[1].value, correct: false})
+            }
+        }
+        questionObject.answer = answersArray;
+    }
+    return questionObject;
 }
 window.addEventListener("load", setup);
