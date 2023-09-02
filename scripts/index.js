@@ -18,13 +18,22 @@ const global = {
     QUIZ: {
         title: '',
         questions: []
-    }
+    },
+
+    currentQuiz: [],
+
+    questionPointer: 0,
+
+    timout_id: 0,
+
+    currentErrorMessageNode: ''
 
 }
 
 const setup = () => {
 
     let createButton = document.getElementById('create');
+    let loadButton = document.getElementById('load');
 
     createButton.addEventListener('click', () => {
 
@@ -33,6 +42,12 @@ const setup = () => {
         createQuiz();
 
     });
+
+    loadButton.addEventListener('click', () => {
+        //clearing the page
+        document.getElementById('content').innerHTML = '';
+        loadQuizes();
+    })
 
     if(localStorage.getItem('quizes') === null) {
         localStorage.setItem('quizes', JSON.stringify([]));
@@ -127,6 +142,7 @@ const displayImageOption = () => {
     //setting attributes
     file.setAttribute('type', 'file');
     file.setAttribute('id', 'image');
+    file.setAttribute('accept', 'image/*');
 
     div.appendChild(h2);
     div.appendChild(file);
@@ -167,6 +183,7 @@ const displayAnswers = type => {
                 } else if (type === 'mci') {
                     answer = document.createElement('input');
                     answer.setAttribute('type', 'file');
+                    answer.setAttribute('accept', 'image/*');
                 }
                 //adding eventhandlers
                 check.addEventListener('click', () => {
@@ -251,6 +268,9 @@ const displayFooter = type => {
  * @param type
  */
 const validate = type => {
+
+    //Clear previous error message
+    clearErrorMessage(global.currentErrorMessageNode);
 
     let valid = true;
     //checking if question is empty
@@ -369,6 +389,8 @@ const displayTitleOption = () => {
 
         div.innerHTML = '';
 
+        //clearing quiz object
+        global.QUIZ = {};
     });
 
     //appending nodes
@@ -398,5 +420,128 @@ const displayErrorMessage = message => {
     //appending nodes
     p.appendChild(document.createTextNode(`${message}`));
     div.appendChild(p);
+
+    global.currentErrorMessageNode = p;
+}
+
+/**
+ * Removes a question that has been displayed
+ * @param errorMessageNode
+ */
+const clearErrorMessage = errorMessageNode => {
+
+    //making nodes
+    let div = document.getElementById('content');
+
+    div.removeChild(errorMessageNode);
+}
+
+const loadQuizes = () => {
+
+    let contentDiv = document.getElementById('content');
+
+    //making nodes
+    let h1 = document.createElement('h1');
+    let div = document.createElement('div');
+
+    //adding classes
+    div.classList.add('loadContent');
+
+    //appending nodes
+    h1.appendChild(document.createTextNode('Quizes'));
+    contentDiv.appendChild(h1);
+    contentDiv.append(div);
+
+    //displaying saved quizes
+    for(let quiz of (JSON.parse(localStorage.getItem('quizes')))) {
+        let quizDiv = document.createElement('div');
+        let h2 = document.createElement('h2');
+
+        //adding styles
+        quizDiv.classList.add('quizDiv');
+
+        //eventListeners
+        quizDiv.addEventListener('click', () => {
+            // clear page
+            contentDiv.innerHTML ='';
+            global.currentQuiz = quiz.questions;
+            generateQuestion(global.currentQuiz[global.questionPointer]);
+
+
+        });
+
+        //appending nodes
+        h2.appendChild(document.createTextNode(quiz.title));
+        quizDiv.appendChild(h2);
+        contentDiv.appendChild(quizDiv);
+    }
+}
+
+/**
+ * Generates question for a given question data format
+ * @param question
+ */
+const generateQuestion = question => {
+
+    let div = document.getElementById('content');
+    let correct = false;
+    //creating nodes
+    let p = document.createElement('p');
+    let img = document.createElement('img');
+    let button = document.createElement('button');
+
+    //appending nodes
+    p.appendChild(document.createTextNode(question.question));
+    button.appendChild(document.createTextNode('Sumbit answer'))
+    div.appendChild(p);
+    if(question.image !== '') {
+        img.setAttribute('src', question.image);
+        div.appendChild(img);
+    }
+
+    //making nodes for each question type
+    if(question.type === 'open') {
+        let textarea = document.createElement('textarea');
+        div.appendChild(textarea);
+    } else if (question.type === 'openi') {
+        let textField = document.createElement('input');
+        textField.setAttribute('type', 'text');
+        div.appendChild(textField);
+    } else {
+        for(let answer of question.answers) {
+            let button = document.createElement('button');
+            if (question.type === 'mc') {
+                button.appendChild(document.createTextNode(answer[0]));
+            } else if (question.type === 'mci') {
+                let img = document.createElement('img');
+                img.setAttribute('src', URL.createObjectURL(answer[0]));
+                button.appendChild(img);
+            }
+            button.addEventListener('click', () => {
+                goToNextQuestion();
+            });
+            div.appendChild(button);
+        }
+    }
+
+    if(question.type === 'open' || question.type === 'openi') {
+        button.addEventListener('click', () => {
+            //clear page
+            document.getElementById('content').innerHTML = '';
+
+            goToNextQuestion();
+        });
+        div.appendChild(document.createElement('br'));
+        div.appendChild(button);
+    }
+}
+
+/**
+ * Skips to next question
+ */
+const goToNextQuestion = () => {
+    //going to the next question
+    global.questionPointer++;
+    generateQuestion(global.currentQuiz[global.questionPointer]);
 }
 window.addEventListener("load", setup);
