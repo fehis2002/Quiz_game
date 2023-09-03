@@ -4,7 +4,6 @@ const global = {
         ['open', 'Open questions'],
         ['openi', 'Open questions (number)'],
         ['mc', 'Multiple choice'],
-        ['mci', 'Multiple choice (pictures)']
     ]),
 
     DESCRIPTIONS: new Map([
@@ -12,7 +11,6 @@ const global = {
         'An open answer with text and numbers are allowed, but strictly integers are not allowed.'],
         ['openi', 'This is an open question where integers are the only valid answers'],
         ['mc', 'This is an multiple choice question.'],
-        ['mci', 'This is an multiple choice question where images are answers.']
     ]),
 
     QUIZ: {
@@ -24,13 +22,54 @@ const global = {
 
     questionPointer: 0,
 
-    timout_id: 0,
+    currentErrorMessageNode: '',
 
-    currentErrorMessageNode: ''
+    score: 0
 
 }
 
 const setup = () => {
+
+    displayHomePage();
+    if(localStorage.getItem('quizes') === null) {
+        localStorage.setItem('quizes', JSON.stringify([]));
+    }
+
+}
+
+/**
+ * Displays homepage of the quiz app
+ */
+const displayHomePage = () => {
+
+    //creating nodes
+    let content = document.getElementById('content')
+    let title = document.createElement('h1');
+    let text = document.createElement('p');
+    let buttonDiv = document.createElement('div');
+    let create = document.createElement('button');
+    let load = document.createElement('button');
+
+    //clear page
+    content.innerHTML = '';
+
+    //appending nodes
+    title.appendChild(document.createTextNode('Quiz game'));
+    text.appendChild(document.createTextNode('' +
+        'If you haven\'t created a quiz, click on the "Create a quiz game" button. If you have created a quiz, ' +
+        'then you can load a quiz game by clicking the "Load a quiz game" button.'
+    ));
+    create.appendChild(document.createTextNode('Create a quiz game'));
+    load.appendChild(document.createTextNode('Load a quiz game'));
+    buttonDiv.appendChild(create);
+    buttonDiv.appendChild(load);
+    content.appendChild(title);
+    content.appendChild(text);
+    content.appendChild(buttonDiv);
+
+    //setting id's
+    create.setAttribute('id', 'create');
+    load.setAttribute('id', 'load');
 
     let createButton = document.getElementById('create');
     let loadButton = document.getElementById('load');
@@ -38,21 +77,16 @@ const setup = () => {
     createButton.addEventListener('click', () => {
 
         //clearing the page
-        document.getElementById('content').innerHTML = '';
+        content.innerHTML = '';
         createQuiz();
 
     });
 
     loadButton.addEventListener('click', () => {
         //clearing the page
-        document.getElementById('content').innerHTML = '';
+        content.innerHTML = '';
         loadQuizes();
-    })
-
-    if(localStorage.getItem('quizes') === null) {
-        localStorage.setItem('quizes', JSON.stringify([]));
-    }
-
+    });
 }
 
 /**
@@ -81,7 +115,6 @@ const createQuiz = () => {
             //constructing the page
             displayHeader(type[1], global.DESCRIPTIONS.get(type[0]));
             displayQuestion();
-            displayImageOption();
             displayAnswers(type[0]);
             displayFooter(type[0]);
         });
@@ -127,26 +160,7 @@ const displayHeader = (type, description) => {
     div.appendChild(document.createElement('br'));
 }
 
-/**
- * Displays the option to add images to an question
- */
-const displayImageOption = () => {
 
-    let div = document.getElementById('content');
-
-    //making nodes
-    let file = document.createElement('input');
-    let h2 = document.createElement('h2');
-    h2.appendChild(document.createTextNode('Image (optional)'));
-
-    //setting attributes
-    file.setAttribute('type', 'file');
-    file.setAttribute('id', 'image');
-    file.setAttribute('accept', 'image/*');
-
-    div.appendChild(h2);
-    div.appendChild(file);
-}
 
 /**
  * Displays answers options for a given type of question
@@ -180,10 +194,6 @@ const displayAnswers = type => {
                 let answer;
                 if (type === 'mc') {
                     answer = document.createElement('textarea');
-                } else if (type === 'mci') {
-                    answer = document.createElement('input');
-                    answer.setAttribute('type', 'file');
-                    answer.setAttribute('accept', 'image/*');
                 }
                 //adding eventhandlers
                 check.addEventListener('click', () => {
@@ -298,7 +308,7 @@ const validate = type => {
             displayErrorMessage('The answer isn\'t an integer');
             valid = false;
         }
-    } else if (valid && (type === 'mc'  || type === 'mci')) {
+    } else if (valid && type === 'mc') {
         let empty = false;
         let i = 0;
         while(!empty && i < answers.length) {
@@ -337,7 +347,6 @@ const storeQuestion = type => {
 
     //retrieving data from a question
     let questionValue = document.getElementById('question').value;
-    let imageValue = document.getElementById('image').value;
     let typeValue = type;
     let answersValue;
     if(type === 'open' || type === 'openi') {
@@ -357,7 +366,6 @@ const storeQuestion = type => {
     global.QUIZ.questions.push({
         type: typeValue,
         question: questionValue,
-        image: imageValue,
         answers: answersValue
     })
 }
@@ -433,7 +441,9 @@ const clearErrorMessage = errorMessageNode => {
     //making nodes
     let div = document.getElementById('content');
 
-    div.removeChild(errorMessageNode);
+    if(errorMessageNode) {
+        div.removeChild(errorMessageNode);
+    }
 }
 
 const loadQuizes = () => {
@@ -483,56 +493,51 @@ const loadQuizes = () => {
  */
 const generateQuestion = question => {
 
-    let div = document.getElementById('content');
-    let correct = false;
+    let content = document.getElementById('content');
     //creating nodes
     let p = document.createElement('p');
-    let img = document.createElement('img');
-    let button = document.createElement('button');
+    let submitButton = document.createElement('button');
 
     //appending nodes
     p.appendChild(document.createTextNode(question.question));
-    button.appendChild(document.createTextNode('Sumbit answer'))
-    div.appendChild(p);
-    if(question.image !== '') {
-        img.setAttribute('src', question.image);
-        div.appendChild(img);
-    }
+    submitButton.appendChild(document.createTextNode('Sumbit answer'))
+    content.appendChild(p);
 
     //making nodes for each question type
     if(question.type === 'open') {
         let textarea = document.createElement('textarea');
-        div.appendChild(textarea);
+        content.appendChild(textarea);
     } else if (question.type === 'openi') {
         let textField = document.createElement('input');
         textField.setAttribute('type', 'text');
-        div.appendChild(textField);
+        content.appendChild(textField);
     } else {
         for(let answer of question.answers) {
             let button = document.createElement('button');
             if (question.type === 'mc') {
                 button.appendChild(document.createTextNode(answer[0]));
-            } else if (question.type === 'mci') {
-                let img = document.createElement('img');
-                img.setAttribute('src', URL.createObjectURL(answer[0]));
-                button.appendChild(img);
             }
             button.addEventListener('click', () => {
+                //checking if a button is that has been clicked is the correct answer
+                if(answer[1]) {
+                    increaseScore();
+                }
                 goToNextQuestion();
             });
-            div.appendChild(button);
+            content.appendChild(button);
         }
     }
 
     if(question.type === 'open' || question.type === 'openi') {
-        button.addEventListener('click', () => {
-            //clear page
-            document.getElementById('content').innerHTML = '';
-
+        submitButton.addEventListener('click', () => {
+            //checking if a given answer equals the correct answer
+            if(question.answers === content.children[1].value) {
+                increaseScore();
+            }
             goToNextQuestion();
         });
-        div.appendChild(document.createElement('br'));
-        div.appendChild(button);
+        content.appendChild(document.createElement('br'));
+        content.appendChild(submitButton);
     }
 }
 
@@ -540,8 +545,47 @@ const generateQuestion = question => {
  * Skips to next question
  */
 const goToNextQuestion = () => {
+
+    let content = document.getElementById('content');
+    //clear page
+    content.innerHTML = '';
     //going to the next question
     global.questionPointer++;
+    if(global.questionPointer === global.currentQuiz.length) {
+        displayEndQuizPage();
+    }
     generateQuestion(global.currentQuiz[global.questionPointer]);
+}
+
+/**
+ * Displaying the page of the end of a quiz
+ */
+const displayEndQuizPage = () => {
+    //clear page
+    let content = document.getElementById('content');
+    content.innerHTML = '';
+    //making nodes
+    let h1 = document.createElement('h1');
+    let button = document.createElement('button');
+    let p = document.createElement('p');
+    //appending nodes
+    h1.appendChild(document.createTextNode('Quiz has ended'));
+    button.appendChild(document.createTextNode('Go to Homepage'));
+    p.appendChild(document.createTextNode(`You've scored ${Math.round(global.score / global.currentQuiz.length * 100)}%`))
+    content.appendChild(h1);
+    content.appendChild(p);
+    content.appendChild(button);
+
+    //adding eventhandlers
+    button.addEventListener('click', () => {
+        displayHomePage();
+    });
+}
+
+/**
+ * Increases score of a quiz
+ */
+const increaseScore = () => {
+    global.score++;
 }
 window.addEventListener("load", setup);
