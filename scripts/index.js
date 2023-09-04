@@ -94,14 +94,21 @@ const displayHomePage = () => {
  */
 const createQuiz = () => {
 
-    let div = document.getElementById('content');
+    let content = document.getElementById('content');
 
-    //making title
+    //making nodes
     let title = document.createElement('h1');
-    title.appendChild(document.createTextNode('Choose the type of question'));
+    let buttonsDiv = document.createElement('div');
+    let goBackButton = document.createElement('button');
+    let saveQuiz = document.createElement('button');
 
-    //appending title to page
-    div.appendChild(title);
+    //appending nodes
+    title.appendChild(document.createTextNode('Choose the type of question'));
+    goBackButton.appendChild(document.createTextNode('Go back'));
+    saveQuiz.appendChild(document.createTextNode('Save quiz'));
+    buttonsDiv.appendChild(goBackButton);
+    buttonsDiv.appendChild(saveQuiz);
+    content.appendChild(title);
 
     //making buttons
     for(let type of global.TYPES_OF_QUESTIONS) {
@@ -109,6 +116,10 @@ const createQuiz = () => {
         button.appendChild(document.createTextNode(`${type[1]}`));
 
         button.addEventListener('click', () => {
+            //remove potential error messages that appear in the page where you can choose the type of question that
+            //can create
+            global.currentErrorMessageNode = '';
+
             //clear page
             document.getElementById('content').innerHTML = '';
 
@@ -119,8 +130,27 @@ const createQuiz = () => {
             displayFooter(type[0]);
         });
         //appending button to page
-        div.appendChild(button);
+        content.appendChild(button);
     }
+
+    //appending buttons to page
+    content.appendChild(buttonsDiv);
+
+    //adding eventlisteners to buttons
+    goBackButton.addEventListener('click', () => {
+        displayHomePage();
+    })
+    saveQuiz.addEventListener('click', () => {
+        //remove error messages that have possibly appeared
+        if(global.currentErrorMessageNode) {
+            clearErrorMessage(global.currentErrorMessageNode);
+        }
+        if(global.QUIZ.questions.length === 0) {
+            displayErrorMessage("Can't save a quiz that has no questions");
+        } else {
+            displayTitleOption();
+        }
+    });
 }
 
 /**
@@ -239,12 +269,6 @@ const displayFooter = type => {
 
     //adding eventhandlers
     next.addEventListener('click', () => {
-        //removing the error message
-        let errormessage = document.getElementById('error');
-        if(errormessage !== null) {
-            div.removeChild(errormessage);
-        }
-
         if(validate(type)) {
             //store question
             storeQuestion(type)
@@ -279,8 +303,11 @@ const displayFooter = type => {
  */
 const validate = type => {
 
-    //Clear previous error message
-    clearErrorMessage(global.currentErrorMessageNode);
+    //Clear previous error message that appear in the page where you can create a question
+    if(global.currentErrorMessageNode) {
+        clearErrorMessage(global.currentErrorMessageNode);
+    }
+
 
     let valid = true;
     //checking if question is empty
@@ -439,10 +466,10 @@ const displayErrorMessage = message => {
 const clearErrorMessage = errorMessageNode => {
 
     //making nodes
-    let div = document.getElementById('content');
+    let content = document.getElementById('content');
 
     if(errorMessageNode) {
-        div.removeChild(errorMessageNode);
+        content.removeChild(errorMessageNode);
     }
 }
 
