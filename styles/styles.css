@@ -1,0 +1,139 @@
+/*Mobile first*/
+body {
+    background: rgb(255,255,255);
+    background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(122,254,255,1) 100%);
+    width: 750px;
+    height: 1000px;
+    margin: 0 auto;
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+h1, p {
+    color: #000000;
+}
+
+#mainButtonsDiv {
+    width: 750px;
+    margin: 10px auto 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+#mainButtonsDiv > button {
+    margin-bottom: 10px;
+}
+
+button {
+    display: block;
+    background-color: #fff202;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 5px;
+    border-color: #fff202;
+    box-sizing: border-box;
+    width: 200px;
+    height: 70px;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+#questionButtonsDiv {
+    display: flex;
+    margin-bottom: 10px;
+    justify-content: center;
+    column-gap: 20px;
+}
+
+#error {
+    color: red;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-style: italic;
+}
+
+#question {
+    box-sizing: border-box;
+    height: 100px;
+    width: 500px;
+    font-family: sans-serif;
+}
+
+textarea.answers {
+    box-sizing: border-box;
+    height: 100px;
+    width: 500px;
+}
+
+.mcContainer > button {
+    width: 100px;
+    height: 50px;
+    display: inline-block;
+
+}
+
+.mcContainer > textarea {
+    position: relative;
+    top: 20px;
+    height: 42px;
+    font-family: sans-serif;
+}
+
+.quizDiv:hover {
+    cursor: pointer;
+    height: 210px;
+    width: 210px;
+}
+
+.quizDiv {
+    border: 2px #E7CEA6 solid;
+    box-sizing: border-box;
+    height: 200px;
+    width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff202;
+    box-shadow: 2px 2px #888888;
+    margin: 0 auto;
+}
+
+#loadContent {
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: 10px;
+    margin-top: 50px;
+}
+
+#repQuestion {
+    font-size: 30px;
+}
+
+textarea#repAnswer {
+    box-sizing: border-box;
+    width: 400px;
+    height: 150px;
+}
+
+input[type=text]#repAnswer {
+    box-sizing: border-box;
+    height: 30px;
+    margin-bottom: 10px;
+}
+
+#repButtonsDiv > button {
+    margin: 0 auto;
+}
+
+#repButtonsDiv {
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: 10px;
+}
