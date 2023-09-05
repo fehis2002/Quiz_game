@@ -68,6 +68,7 @@ const displayHomePage = () => {
     content.appendChild(buttonDiv);
 
     //setting id's
+    buttonDiv.setAttribute('id', 'mainButtonsDiv')
     create.setAttribute('id', 'create');
     load.setAttribute('id', 'load');
 
@@ -99,6 +100,7 @@ const createQuiz = () => {
     //making nodes
     let title = document.createElement('h1');
     let buttonsDiv = document.createElement('div');
+    let questionsButtonsDiv = document.createElement('div');
     let goBackButton = document.createElement('button');
     let saveQuiz = document.createElement('button');
 
@@ -121,7 +123,7 @@ const createQuiz = () => {
             global.currentErrorMessageNode = '';
 
             //clear page
-            document.getElementById('content').innerHTML = '';
+            content.innerHTML = '';
 
             //constructing the page
             displayHeader(type[1], global.DESCRIPTIONS.get(type[0]));
@@ -129,17 +131,26 @@ const createQuiz = () => {
             displayAnswers(type[0]);
             displayFooter(type[0]);
         });
-        //appending button to page
-        content.appendChild(button);
+        //appending button to div
+        questionsButtonsDiv.appendChild(button);
     }
 
     //appending buttons to page
+    content.appendChild(questionsButtonsDiv);
     content.appendChild(buttonsDiv);
+
+    //setting id's
+    questionsButtonsDiv.setAttribute('id', 'questionButtonsDiv');
+    buttonsDiv.setAttribute('id', 'mainButtonsDiv');
 
     //adding eventlisteners to buttons
     goBackButton.addEventListener('click', () => {
+        //remove error messages that have possibly appeared
+        if(global.currentErrorMessageNode) {
+            clearErrorMessage(global.currentErrorMessageNode);
+        }
         displayHomePage();
-    })
+    });
     saveQuiz.addEventListener('click', () => {
         //remove error messages that have possibly appeared
         if(global.currentErrorMessageNode) {
@@ -244,6 +255,9 @@ const displayAnswers = type => {
                 container.appendChild(answer);
                 container.appendChild(cancel);
 
+                //setting classes for styles
+                container.classList.add('mcContainer');
+
                 div.appendChild(container);
             }
     }
@@ -257,12 +271,13 @@ const displayAnswers = type => {
  */
 const displayFooter = type => {
 
-    let div = document.getElementById('content');
+    let content = document.getElementById('content');
 
     //making nodes
     let next = document.createElement('button');
     let cancel = document.createElement('button');
     let save = document.createElement('button');
+    let mainButtonsDiv = document.createElement('div');
     next.appendChild(document.createTextNode('next question'));
     cancel.appendChild(document.createTextNode('cancel'));
     save.appendChild(document.createTextNode('save quiz'));
@@ -272,13 +287,13 @@ const displayFooter = type => {
         if(validate(type)) {
             //store question
             storeQuestion(type)
-            div.innerHTML = '';
+            content.innerHTML = '';
             createQuiz();
         }
     });
 
     cancel.addEventListener('click', () => {
-        div.innerHTML = '';
+        content.innerHTML = '';
         createQuiz();
     });
 
@@ -286,15 +301,19 @@ const displayFooter = type => {
         if(validate(type)) {
             //store question
             storeQuestion(type)
-            div.innerHTML = '';
+            content.innerHTML = '';
             displayTitleOption();
         }
     })
 
+    //setting id's
+    mainButtonsDiv.setAttribute('id', 'mainButtonsDiv');
+
     //appending nodes
-    div.appendChild(cancel);
-    div.appendChild(next);
-    div.appendChild(save);
+    mainButtonsDiv.appendChild(cancel);
+    mainButtonsDiv.appendChild(next);
+    mainButtonsDiv.appendChild(save);
+    content.appendChild(mainButtonsDiv);
 }
 
 /**
@@ -402,39 +421,64 @@ const storeQuestion = type => {
  */
 const displayTitleOption = () => {
 
-    let div = document.getElementById('content');
+    let content = document.getElementById('content');
+
+    //clear page
+    content.innerHTML = '';
 
     //making nodes
     let h1 = document.createElement('h1');
     let textfield = document.createElement('input');
-    let button = document.createElement('button');
+    let save = document.createElement('button');
+    let goBack = document.createElement('button');
 
     //setting attributes
     textfield.setAttribute('type', 'text');
 
     //adding eventhandler
-    button.addEventListener('click', () => {
-        //change title of quiz
-        global.QUIZ.title = textfield.value;
+    save.addEventListener('click', () => {
+        //removing possible error message from page
+        if(global.currentErrorMessageNode) {
+            clearErrorMessage(global.currentErrorMessageNode);
+        }
 
-        //update localstorage
-        let quizes = JSON.parse(localStorage.getItem('quizes'));
-        quizes.push(global.QUIZ);
-        localStorage.setItem('quizes', JSON.stringify(quizes));
+        if(textfield.value) {
+            //change title of quiz
+            global.QUIZ.title = textfield.value;
 
-        div.innerHTML = '';
+            //update localstorage
+            let quizes = JSON.parse(localStorage.getItem('quizes'));
+            quizes.push(global.QUIZ);
+            localStorage.setItem('quizes', JSON.stringify(quizes));
 
-        //clearing quiz object
-        global.QUIZ = {};
+            //clear page
+            content.innerHTML = '';
+
+            //return to homepage
+            displayHomePage();
+
+            //clearing quiz object
+            global.QUIZ = {};
+        } else {
+            displayErrorMessage("You can't save a quiz that has no title");
+        }
+    });
+
+    goBack.addEventListener('click', () => {
+        //clear page
+        content.innerHTML = '';
+        createQuiz();
     });
 
     //appending nodes
-    button.appendChild(document.createTextNode('Save quiz'));
+    save.appendChild(document.createTextNode('Save quiz'));
+    goBack.appendChild(document.createTextNode('Go back'));
     h1.appendChild(document.createTextNode('Enter a title'));
-    div.appendChild(h1);
-    div.appendChild(textfield);
-    div.appendChild(document.createElement('br'));
-    div.appendChild(button);
+    content.appendChild(h1);
+    content.appendChild(textfield);
+    content.appendChild(document.createElement('br'));
+    content.appendChild(save);
+    content.appendChild(goBack);
 
 
 }
@@ -471,23 +515,25 @@ const clearErrorMessage = errorMessageNode => {
     if(errorMessageNode) {
         content.removeChild(errorMessageNode);
     }
+
+    global.currentErrorMessageNode = '';
 }
 
 const loadQuizes = () => {
 
-    let contentDiv = document.getElementById('content');
+    let content = document.getElementById('content');
 
     //making nodes
     let h1 = document.createElement('h1');
-    let div = document.createElement('div');
+    let loadContent = document.createElement('div');
 
     //adding classes
-    div.classList.add('loadContent');
+    loadContent.setAttribute('id', 'loadContent');
 
     //appending nodes
     h1.appendChild(document.createTextNode('Quizes'));
-    contentDiv.appendChild(h1);
-    contentDiv.append(div);
+    content.appendChild(h1);
+    content.append(loadContent);
 
     //displaying saved quizes
     for(let quiz of (JSON.parse(localStorage.getItem('quizes')))) {
@@ -500,7 +546,7 @@ const loadQuizes = () => {
         //eventListeners
         quizDiv.addEventListener('click', () => {
             // clear page
-            contentDiv.innerHTML ='';
+            content.innerHTML ='';
             global.currentQuiz = quiz.questions;
             generateQuestion(global.currentQuiz[global.questionPointer]);
 
@@ -510,13 +556,13 @@ const loadQuizes = () => {
         //appending nodes
         h2.appendChild(document.createTextNode(quiz.title));
         quizDiv.appendChild(h2);
-        contentDiv.appendChild(quizDiv);
+        loadContent.appendChild(quizDiv);
     }
 }
 
 /**
  * Generates question for a given question data format
- * @param question
+ * @param question data
  */
 const generateQuestion = question => {
 
@@ -524,25 +570,34 @@ const generateQuestion = question => {
     //creating nodes
     let p = document.createElement('p');
     let submitButton = document.createElement('button');
+    let repButtonsDiv = document.createElement('div');
 
     //appending nodes
     p.appendChild(document.createTextNode(question.question));
     submitButton.appendChild(document.createTextNode('Sumbit answer'))
     content.appendChild(p);
 
+    //setting id's
+    repButtonsDiv.setAttribute('id', 'repButtonsDiv');
+    p.setAttribute('id', 'repQuestion');
+
+
     //making nodes for each question type
     if(question.type === 'open') {
         let textarea = document.createElement('textarea');
         content.appendChild(textarea);
+        textarea.setAttribute('id', 'repAnswer')
     } else if (question.type === 'openi') {
         let textField = document.createElement('input');
         textField.setAttribute('type', 'text');
         content.appendChild(textField);
+        textField.setAttribute('id', 'repAnswer')
     } else {
         for(let answer of question.answers) {
             let button = document.createElement('button');
             if (question.type === 'mc') {
                 button.appendChild(document.createTextNode(answer[0]));
+                repButtonsDiv.appendChild(button);
             }
             button.addEventListener('click', () => {
                 //checking if a button is that has been clicked is the correct answer
@@ -551,7 +606,7 @@ const generateQuestion = question => {
                 }
                 goToNextQuestion();
             });
-            content.appendChild(button);
+            content.appendChild(repButtonsDiv);
         }
     }
 
@@ -563,8 +618,8 @@ const generateQuestion = question => {
             }
             goToNextQuestion();
         });
-        content.appendChild(document.createElement('br'));
-        content.appendChild(submitButton);
+        repButtonsDiv.appendChild(submitButton);
+        content.appendChild(repButtonsDiv);
     }
 }
 
@@ -595,13 +650,18 @@ const displayEndQuizPage = () => {
     let h1 = document.createElement('h1');
     let button = document.createElement('button');
     let p = document.createElement('p');
+    let repButtonsDiv = document.createElement('div');
     //appending nodes
     h1.appendChild(document.createTextNode('Quiz has ended'));
     button.appendChild(document.createTextNode('Go to Homepage'));
     p.appendChild(document.createTextNode(`You've scored ${Math.round(global.score / global.currentQuiz.length * 100)}%`))
+    repButtonsDiv.appendChild(button);
     content.appendChild(h1);
     content.appendChild(p);
-    content.appendChild(button);
+    content.appendChild(repButtonsDiv);
+
+    //setting id's
+    repButtonsDiv.setAttribute('id', 'repButtonsDiv');
 
     //adding eventhandlers
     button.addEventListener('click', () => {
