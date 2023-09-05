@@ -2,7 +2,7 @@
 body {
     background: rgb(255,255,255);
     background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(122,254,255,1) 100%);
-    width: 750px;
+    width: 500px;
     height: 1000px;
     margin: 0 auto;
     font-family: sans-serif;
@@ -16,6 +16,7 @@ h1, p {
     color: #000000;
 }
 
+/* Homepage */
 #mainButtonsDiv {
     width: 750px;
     margin: 10px auto 0 auto;
@@ -47,9 +48,11 @@ button:hover {
 
 #questionButtonsDiv {
     display: flex;
+    flex-direction: column;
     margin-bottom: 10px;
     justify-content: center;
-    column-gap: 20px;
+    align-items: center;
+    row-gap: 10px;
 }
 
 #error {
@@ -59,6 +62,7 @@ button:hover {
     font-style: italic;
 }
 
+/* Creating quiz */
 #question {
     box-sizing: border-box;
     height: 100px;
@@ -86,6 +90,7 @@ textarea.answers {
     font-family: sans-serif;
 }
 
+/* Loading quiz */
 .quizDiv:hover {
     cursor: pointer;
     height: 210px;
@@ -136,4 +141,64 @@ input[type=text]#repAnswer {
     display: grid;
     grid-template-columns: 1fr;
     row-gap: 10px;
+}
+
+@media screen and (min-width: 750px) {
+
+    /* Homepage */
+    #mainButtonsDiv {
+        flex-direction: row;
+        justify-content: center;
+        column-gap: 10px;
+    }
+
+    /* Creating a quiz */
+    #questionButtonsDiv {
+        flex-direction: row;
+        column-gap: 10px;
+    }
+
+    input[type=text].answers {
+        height: 25px;
+    }
+
+    /*  Loading a quiz */
+    #loadContent {
+        grid-template-columns: repeat(3, 1fr);
+        column-gap: 10px;
+    }
+
+}
+
+@media screen and (min-width: 1050px) {
+
+    /* Homepage */
+    #mainButtonsDiv {
+        flex-direction: row;
+        justify-content: center;
+        column-gap: 50px;
+    }
+
+    /* Creating a quiz */
+    #questionButtonsDiv {
+        flex-direction: row;
+        column-gap: 50px;
+    }
+
+    /*  Loading a quiz */
+    #loadContent {
+        grid-template-columns: repeat(5, 1fr);
+        column-gap: 20px;
+    }
+
+    .quizDiv {
+        height: 150px;
+        width: 150px;
+        font-size: 15px;
+    }
+
+    .quizDiv:hover {
+        height: 160px;
+        width: 160px;
+    }
 }
