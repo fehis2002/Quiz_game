@@ -666,7 +666,11 @@ const displayEndQuizPage = () => {
     //adding eventhandlers
     button.addEventListener('click', () => {
         displayHomePage();
+        //reset question pointer and score
+        global.questionPointer = 0;
+        global.score = 0;
     });
+
 }
 
 /**
